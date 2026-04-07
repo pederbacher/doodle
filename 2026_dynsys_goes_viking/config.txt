@@ -5,7 +5,10 @@
 
 [poll]
 title = Viking sail trip
-description = Please indicate your availability for the proposed time slots below.
+description = Please indicate your availability for the proposed time
+slots below. We will go sail a trip as described in
+https://www.vikingeskibsmuseet.dk/en/buy/boat-trips/sailing-a-viking-ship
+and afterwards visit a restaurant, and have much fun together!
 organizer = Peder
 # Access word participants must enter to vote / view results.
 # Remove or leave blank to disable the gate.
