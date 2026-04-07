@@ -1,16 +1,12 @@
 # ============================================================
 # Global Doodle Configuration
-# Contains GitHub credentials shared by all doodles.
-# Each doodle has its own config.txt in its subfolder.
+# Contains GitHub settings shared by all doodles.
+# The GitHub token is NOT stored here — it lives in your browser's
+# localStorage and is never committed to the repository.
+# Use setup.html to enter your token.
 # ============================================================
 
 [github]
-# Your GitHub username
 owner = pederbacher
-# The repository name (this repo)
 repo = doodle
-# Branch to save responses to (usually main or master)
 branch = main
-# Fine-grained Personal Access Token with "Contents: Read & Write" for this repo
-# Create one at: GitHub → Settings → Developer settings → Fine-grained tokens
-token = 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

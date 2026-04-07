@@ -95,8 +95,11 @@
     </div>
     <div class="field">
       <label for="gh-token">Personal Access Token</label>
-      <input type="password" id="gh-token" placeholder="ghp_…" autocomplete="off" />
-      <p class="hint">Contents: Read &amp; Write permission on this repository.</p>
+      <input type="password" id="gh-token" placeholder="github_pat_…" autocomplete="off" />
+      <p class="hint">
+        Stored <strong>only in this browser</strong> — never written to the repository.
+        Contents: Read &amp; Write permission on this repository.
+      </p>
     </div>
 
     <div class="actions">
@@ -238,18 +241,17 @@
     const owner  = document.getElementById('gh-owner').value.trim();
     const repo   = document.getElementById('gh-repo').value.trim();
     const branch = document.getElementById('gh-branch').value.trim() || 'main';
-    const token  = document.getElementById('gh-token').value.trim();
+    // Token is NOT included — it lives in localStorage only, never in the repo.
     return [
       '# ============================================================',
       '# Global Doodle Configuration',
-      '# Contains GitHub credentials shared by all doodles.',
+      '# The GitHub token is stored in your browser localStorage, not here.',
       '# ============================================================',
       '',
       '[github]',
       `owner = ${owner || 'YOUR_GITHUB_USERNAME'}`,
       `repo = ${repo || 'YOUR_REPO_NAME'}`,
       `branch = ${branch}`,
-      `token = ${token || 'YOUR_GITHUB_TOKEN'}`,
       '',
     ].join('\n');
   }
@@ -341,13 +343,24 @@
       try {
         await putFile(`${folder}/responses/.gitkeep`, '', `Create responses folder for ${folder}`, creds);
       } catch (_) { /* already exists, fine */ }
-      showStatus('doodle-status',
-        `✓ Config saved! Now copy the template/ folder in your repo to "${folder}/" and push.`, true);
+      const shareLink = getShareLink(folder);
+      const msg = `✓ Config saved! Now copy the template/ folder in your repo to "${folder}/" and push.\n\nShare this voting link (it contains the token so participants can submit):\n${shareLink}`;
+      showStatus('doodle-status', msg, true);
+      document.getElementById('doodle-status').style.whiteSpace = 'pre-wrap';
+      document.getElementById('doodle-status').style.wordBreak = 'break-all';
     } catch (err) {
       showStatus('doodle-status', 'Error: ' + err.message, false);
     } finally {
       btn.disabled = false; btn.textContent = 'Save Doodle Config to GitHub';
     }
+  }
+
+  function getShareLink(folder) {
+    const owner = document.getElementById('gh-owner').value.trim();
+    const repo  = document.getElementById('gh-repo').value.trim();
+    const token = document.getElementById('gh-token').value.trim();
+    const base  = `https://${owner}.github.io/${repo}/${folder}/`;
+    return token ? base + '#t=' + btoa(token) : base;
   }
 
   function downloadDoodleConfig() {
@@ -367,8 +380,18 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  // ── Init: pre-fill from existing global config ─────────────────────────────
+  // ── Init ──────────────────────────────────────────────────────────────────
   async function init() {
+    // Pre-fill token from localStorage (never comes from the repo)
+    const savedToken = localStorage.getItem('gh_token');
+    if (savedToken) document.getElementById('gh-token').value = savedToken;
+
+    // Save token to localStorage whenever it changes
+    document.getElementById('gh-token').addEventListener('input', e => {
+      localStorage.setItem('gh_token', e.target.value.trim());
+    });
+
+    // Pre-fill owner/repo/branch from config.txt
     try {
       const res = await fetch('config.txt?_=' + Date.now());
       if (!res.ok) return;
@@ -384,10 +407,9 @@
           if (eq > 0) {
             const k = line.slice(0, eq).trim();
             const v = line.slice(eq + 1).trim();
-            const map = { owner: 'gh-owner', repo: 'gh-repo', branch: 'gh-branch', token: 'gh-token' };
-            if (map[k]) {
-              const el = document.getElementById(map[k]);
-              if (el && !v.startsWith('YOUR_')) el.value = v;
+            const map = { owner: 'gh-owner', repo: 'gh-repo', branch: 'gh-branch' };
+            if (map[k] && !v.startsWith('YOUR_')) {
+              document.getElementById(map[k]).value = v;
             }
           }
         }

@@ -196,6 +196,19 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
+  // ── Token: URL fragment → localStorage ────────────────────────────────────
+  (function extractToken() {
+    const m = window.location.hash.match(/[#&]t=([^&]+)/);
+    if (m) {
+      try { localStorage.setItem('gh_token', atob(decodeURIComponent(m[1]))); } catch (_) {}
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  })();
+
+  function getToken() {
+    return localStorage.getItem('gh_token') || '';
+  }
+
   function getDoodleFolder() {
     const parts = window.location.pathname.split('/').filter(Boolean);
     const last = parts[parts.length - 1] || '';
@@ -280,10 +293,11 @@
   }
 
   async function fetchResponses() {
-    const { owner, repo, branch, token } = config.github;
+    const { owner, repo, branch } = config.github;
+    const token = getToken();
     if (!owner || !repo || owner.startsWith('YOUR')) return [];
     const folder = getDoodleFolder();
-    const headers = token && !token.startsWith('YOUR') ? { 'Authorization': `token ${token}` } : {};
+    const headers = token ? { 'Authorization': `token ${token}` } : {};
     const res = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${folder}/responses?ref=${branch || 'main'}`,
       { headers }
