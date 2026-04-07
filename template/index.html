@@ -192,6 +192,10 @@
       <p class="organizer">Organized by <strong id="poll-organizer"></strong></p>
     </div>
 
+    <div id="poll-image-card" class="card hidden" style="padding:0;overflow:hidden">
+      <img id="poll-image" src="" alt="" style="width:100%;display:block" />
+    </div>
+
     <div class="card">
       <form id="vote-form" novalidate>
         <div class="field">
@@ -427,6 +431,15 @@
       document.title = config.poll.title || 'Doodle Poll';
 
       renderSlots(config.slots);
+
+      // Show image if configured
+      if (config.poll.image) {
+        const imgEl = document.getElementById('poll-image');
+        const card  = document.getElementById('poll-image-card');
+        imgEl.src = config.poll.image;
+        imgEl.onerror = () => card.classList.add('hidden');
+        card.classList.remove('hidden');
+      }
 
       // Check access word
       if (config.poll.access_word && !isAccessGranted(config.poll.access_word)) {

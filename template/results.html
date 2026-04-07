@@ -147,6 +147,10 @@
       <p class="organizer">Organized by <strong id="poll-organizer"></strong></p>
     </div>
 
+    <div id="poll-image-card" class="card hidden" style="padding:0;overflow:hidden">
+      <img id="poll-image" src="" alt="" style="width:100%;display:block" />
+    </div>
+
     <div class="card" id="best-card">
       <h2>Best Options</h2>
       <div id="best-list"></div>
@@ -402,6 +406,14 @@
       document.getElementById('poll-desc').textContent      = config.poll.description || '';
       document.getElementById('poll-organizer').textContent = config.poll.organizer  || 'Unknown';
       document.title = (config.poll.title || 'Poll') + ' – Results';
+
+      if (config.poll.image) {
+        const imgEl = document.getElementById('poll-image');
+        const card  = document.getElementById('poll-image-card');
+        imgEl.src = config.poll.image;
+        imgEl.onerror = () => card.classList.add('hidden');
+        card.classList.remove('hidden');
+      }
 
       if (config.poll.access_word && !isAccessGranted(config.poll.access_word)) {
         document.getElementById('access-poll-title').textContent = config.poll.title || 'Doodle Poll';
