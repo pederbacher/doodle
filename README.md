@@ -32,6 +32,8 @@ Open `setup.html` (via your Pages URL) and fill in **Section 1**:
 
 #### Creating a Personal Access Token
 
+Note there is a link to this in the 'setup.html'
+
 1. Click your **profile picture** (top-right on GitHub) → **Settings**
 2. Scroll to the bottom of the left sidebar → **Developer settings**
 3. **Personal access tokens → Fine-grained tokens → Generate new token**
