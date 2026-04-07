@@ -257,6 +257,21 @@
     return last.includes('.') ? (parts[parts.length - 2] || '') : last;
   }
 
+  // ── Token: URL fragment → localStorage ────────────────────────────────────
+  // Organizer shares a link like: .../doodle-name/#t=BASE64_TOKEN
+  // The page picks it up, stores it in localStorage, and cleans the URL.
+  (function extractToken() {
+    const m = window.location.hash.match(/[#&]t=([^&]+)/);
+    if (m) {
+      try { localStorage.setItem('gh_token', atob(decodeURIComponent(m[1]))); } catch (_) {}
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  })();
+
+  function getToken() {
+    return localStorage.getItem('gh_token') || '';
+  }
+
   // ── Access word ────────────────────────────────────────────────────────────
   const ACCESS_KEY = 'doodle_access_' + getDoodleFolder();
 
@@ -359,9 +374,13 @@
 
   // ── Save response to GitHub ────────────────────────────────────────────────
   async function saveResponse(name) {
-    const { owner, repo, branch, token } = config.github;
-    if (!owner || !repo || !token || owner.startsWith('YOUR')) {
+    const { owner, repo, branch } = config.github;
+    const token = getToken();
+    if (!owner || !repo || owner.startsWith('YOUR')) {
       throw new Error('GitHub is not configured. Please edit the global config.txt.');
+    }
+    if (!token) {
+      throw new Error('No GitHub token found. Please open this poll using the share link provided by the organizer.');
     }
     const folder = getDoodleFolder();
     const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 30);
