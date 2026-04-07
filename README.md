@@ -30,6 +30,19 @@ Open `setup.html` (via your Pages URL or locally) and fill in **Section 1**:
 
 Create a token at: **GitHub → Settings → Developer settings → Fine-grained personal access tokens**
 
+What you need is a Personal Access Token (PAT), which is an HTTP credential. Here's exactly where to find it:
+
+  1. Click your profile picture (top-right on GitHub)
+  2. Settings
+  3. Scroll all the way down the left sidebar to Developer settings
+  4. Personal access tokens → Fine-grained tokens
+  5. Click Generate new token
+
+  Key settings when creating it:
+  - Resource owner: your username
+  - Repository access: Only select repositories → pick this repo
+  - Permissions → Repository permissions → Contents: Read and write
+
 Click **Save Global Config to GitHub** — this writes the root `config.txt`.
 
 > ⚠️ The token is stored in the public `config.txt`. Use a fine-grained token scoped **only to this repo** to limit exposure.

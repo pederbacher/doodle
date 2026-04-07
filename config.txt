@@ -6,11 +6,11 @@
 
 [github]
 # Your GitHub username
-owner = YOUR_GITHUB_USERNAME
+owner = pederbacher
 # The repository name (this repo)
-repo = YOUR_REPO_NAME
+repo = doodle
 # Branch to save responses to (usually main or master)
 branch = main
 # Fine-grained Personal Access Token with "Contents: Read & Write" for this repo
 # Create one at: GitHub → Settings → Developer settings → Fine-grained tokens
-token = YOUR_GITHUB_TOKEN
+token = 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
