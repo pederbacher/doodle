@@ -1,0 +1,35 @@
+# ============================================================
+# Doodle Poll Configuration
+# Edit this file to configure your scheduling poll.
+# Lines starting with # are comments and are ignored.
+# ============================================================
+
+[poll]
+title = Team Meeting - When can we meet?
+description = Please indicate your availability for the proposed time slots below.
+organizer = Alice
+
+[github]
+# Your GitHub username
+owner = YOUR_GITHUB_USERNAME
+# The repository name (this repo)
+repo = YOUR_REPO_NAME
+# Branch to save responses to (usually main or master)
+branch = main
+# Personal Access Token with "Contents: write" permission for this repo
+# Create one at: GitHub → Settings → Developer settings → Fine-grained tokens
+token = YOUR_GITHUB_TOKEN
+
+[slots]
+# One time slot per line.
+# Formats accepted:
+#   YYYY-MM-DD HH:MM        (date + time, 24h clock)
+#   YYYY-MM-DD              (whole day, no specific time)
+#
+# Examples:
+2026-04-15 09:00
+2026-04-15 14:00
+2026-04-15 16:30
+2026-04-16 09:00
+2026-04-16 14:00
+2026-04-17

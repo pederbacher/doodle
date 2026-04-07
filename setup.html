@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Setup – Doodle Poll</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --card: #ffffff;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --yes: #22c55e;
+      --yes-light: #dcfce7;
+      --yes-dark: #16a34a;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+      --warning: #fef3c7;
+      --warning-border: #f59e0b;
+      --warning-text: #92400e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 32px;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 6px; }
+    h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .step-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 50%;
+      background: var(--primary); color: #fff; font-size: 0.75rem; font-weight: 700;
+    }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 0; }
+
+    .field { margin-bottom: 18px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.88rem; }
+    .hint { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+    input[type="text"], input[type="password"], textarea {
+      width: 100%;
+      padding: 9px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, input[type="password"]:focus, textarea:focus {
+      border-color: var(--primary);
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* Slots list */
+    .slots-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .slot-entry {
+      display: flex; align-items: center; gap: 8px;
+      background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 7px; padding: 8px 12px;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+    }
+    .slot-entry code { flex: 1; font-family: 'Courier New', monospace; font-size: 0.88rem; }
+    .del-btn {
+      border: none; background: none; cursor: pointer;
+      color: #94a3b8; font-size: 1rem; padding: 0 4px;
+      line-height: 1;
+    }
+    .del-btn:hover { color: #ef4444; }
+
+    .slot-input-row { display: flex; gap: 8px; margin-top: 8px; }
+    .slot-input-row input { flex: 1; }
+    .add-btn {
+      padding: 9px 16px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+    .add-btn:hover { background: var(--primary-dark); }
+
+    /* Buttons */
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+    .btn-primary {
+      flex: 1; min-width: 160px;
+      padding: 12px 20px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-secondary {
+      flex: 1; min-width: 160px;
+      padding: 12px 20px;
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { background: #eff6ff; }
+
+    /* Output preview */
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      line-height: 1.5;
+      margin-top: 12px;
+    }
+    code { font-family: 'Courier New', monospace; }
+
+    /* Warning */
+    .warning {
+      background: var(--warning);
+      border: 1px solid var(--warning-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      color: var(--warning-text);
+      margin-bottom: 18px;
+    }
+    .warning strong { display: block; margin-bottom: 2px; }
+
+    /* Status */
+    .status-msg {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+    .status-ok  { background: var(--yes-light); color: var(--yes-dark); }
+    .status-err { background: #fee2e2; color: #dc2626; }
+    .hidden { display: none !important; }
+
+    .nav-links { text-align: center; margin-top: 16px; }
+    .nav-links a { color: var(--primary); text-decoration: none; font-size: 0.9rem; margin: 0 10px; }
+    .nav-links a:hover { text-decoration: underline; }
+
+    .steps-hint { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+    .steps-hint li { margin-left: 18px; }
+    ol.steps { padding-left: 20px; }
+    ol.steps li { margin-bottom: 8px; font-size: 0.9rem; }
+    ol.steps code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-family: monospace; }
+    a { color: var(--primary); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="card">
+    <h1>Poll Setup</h1>
+    <p class="subtitle">Configure your scheduling poll. Responses will be saved as <code>.txt</code> files in your GitHub repository.</p>
+  </div>
+
+  <!-- Step 1: Poll details -->
+  <div class="card">
+    <h2><span class="step-badge">1</span> Poll Details</h2>
+    <div class="field">
+      <label for="poll-title">Poll Title</label>
+      <input type="text" id="poll-title" placeholder="e.g. Team Quarterly Review" value="When can we meet?" />
+    </div>
+    <div class="field">
+      <label for="poll-desc">Description (optional)</label>
+      <textarea id="poll-desc" placeholder="Give participants some context…">Please indicate your availability for the proposed time slots below.</textarea>
+    </div>
+    <div class="field">
+      <label for="poll-org">Your Name (organizer)</label>
+      <input type="text" id="poll-org" placeholder="e.g. Alice" />
+    </div>
+  </div>
+
+  <!-- Step 2: Time Slots -->
+  <div class="card">
+    <h2><span class="step-badge">2</span> Time Slots</h2>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px">
+      Add the dates or date+time options you want people to vote on.
+    </p>
+    <div id="slots-list"></div>
+    <div class="slot-input-row">
+      <input type="text" id="slot-input" placeholder="YYYY-MM-DD HH:MM  or  YYYY-MM-DD" />
+      <button class="add-btn" onclick="addSlot()">+ Add</button>
+    </div>
+    <p class="hint">
+      Examples: <code>2026-04-15 09:00</code> &nbsp;·&nbsp; <code>2026-04-15 14:00</code> &nbsp;·&nbsp; <code>2026-04-17</code> (all day)
+    </p>
+  </div>
+
+  <!-- Step 3: GitHub -->
+  <div class="card">
+    <h2><span class="step-badge">3</span> GitHub Configuration</h2>
+
+    <div class="warning">
+      <strong>⚠️ Token Security Note</strong>
+      The token is stored in <code>config.txt</code> in your (public) repository so that the voting page can save responses.
+      Use a <strong>fine-grained Personal Access Token</strong> scoped only to this repository with <em>Contents: Read &amp; Write</em> permission —
+      the blast radius is then limited to files in this one repo.
+      <a href="https://github.com/settings/tokens?type=beta" target="_blank">Create token ↗</a>
+    </div>
+
+    <div class="field">
+      <label for="gh-owner">GitHub Username</label>
+      <input type="text" id="gh-owner" placeholder="your-github-username" />
+    </div>
+    <div class="field">
+      <label for="gh-repo">Repository Name</label>
+      <input type="text" id="gh-repo" placeholder="my-doodle-poll" />
+      <p class="hint">The repo where this app is hosted (must have GitHub Pages enabled).</p>
+    </div>
+    <div class="field">
+      <label for="gh-branch">Branch</label>
+      <input type="text" id="gh-branch" placeholder="main" value="main" />
+    </div>
+    <div class="field">
+      <label for="gh-token">Personal Access Token</label>
+      <input type="password" id="gh-token" placeholder="ghp_…" autocomplete="off" />
+      <p class="hint">Needs "Contents: Read &amp; Write" on this repository.</p>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="card">
+    <h2>Save Configuration</h2>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:16px">
+      "Save to GitHub" writes <code>config.txt</code> directly to your repo via the GitHub API.
+      "Download" saves the file locally — then commit and push it yourself.
+    </p>
+    <div class="actions">
+      <button class="btn-primary" id="save-btn" onclick="saveToGitHub()">Save to GitHub</button>
+      <button class="btn-secondary" onclick="downloadConfig()">Download config.txt</button>
+    </div>
+    <div id="save-status" class="hidden"></div>
+
+    <!-- Preview -->
+    <details style="margin-top:20px">
+      <summary style="cursor:pointer;font-size:0.85rem;color:var(--muted);user-select:none">Preview config.txt ▾</summary>
+      <pre id="config-preview"><code></code></pre>
+    </details>
+  </div>
+
+  <!-- Next steps -->
+  <div class="card">
+    <h2>Next Steps</h2>
+    <ol class="steps">
+      <li>Create a new GitHub repository (or use an existing one).</li>
+      <li>Enable <strong>GitHub Pages</strong>: repo <em>Settings → Pages → Source: Deploy from branch → main → / (root)</em></li>
+      <li>Upload all the files from this project to the repo root (including <code>responses/.gitkeep</code>).</li>
+      <li>Use this setup page to save your <code>config.txt</code> to GitHub, or download and commit it manually.</li>
+      <li>Share your GitHub Pages URL (<code>https://YOUR_USERNAME.github.io/YOUR_REPO/</code>) with friends!</li>
+    </ol>
+  </div>
+
+  <div class="nav-links">
+    <a href="index.html">← Vote Page</a>
+    <a href="results.html">Results Page</a>
+  </div>
+
+</div>
+<script>
+  const slots = [];
+
+  // ── Slots UI ───────────────────────────────────────────────────────────────
+  function renderSlots() {
+    const el = document.getElementById('slots-list');
+    if (!slots.length) {
+      el.innerHTML = '<p style="font-size:0.85rem;color:var(--muted);margin-bottom:8px">No slots yet. Add at least one.</p>';
+      return;
+    }
+    el.innerHTML = slots.map((s, i) => `
+      <div class="slot-entry">
+        <code>${escHtml(s)}</code>
+        <button class="del-btn" onclick="removeSlot(${i})" title="Remove">✕</button>
+      </div>`).join('');
+    updatePreview();
+  }
+
+  function addSlot() {
+    const inp = document.getElementById('slot-input');
+    const val = inp.value.trim();
+    if (!val) return;
+    // Basic validation
+    if (!/^\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?$/.test(val)) {
+      alert('Format must be YYYY-MM-DD or YYYY-MM-DD HH:MM');
+      return;
+    }
+    if (slots.includes(val)) { alert('Slot already added.'); return; }
+    slots.push(val);
+    inp.value = '';
+    renderSlots();
+  }
+
+  function removeSlot(i) {
+    slots.splice(i, 1);
+    renderSlots();
+  }
+
+  // Allow pressing Enter in slot input
+  document.getElementById('slot-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addSlot(); }
+  });
+
+  // Update preview whenever any field changes
+  document.querySelectorAll('input, textarea').forEach(el => {
+    el.addEventListener('input', updatePreview);
+  });
+
+  // ── Build config.txt content ───────────────────────────────────────────────
+  function buildConfig() {
+    const title  = document.getElementById('poll-title').value.trim() || 'When can we meet?';
+    const desc   = document.getElementById('poll-desc').value.trim();
+    const org    = document.getElementById('poll-org').value.trim();
+    const owner  = document.getElementById('gh-owner').value.trim();
+    const repo   = document.getElementById('gh-repo').value.trim();
+    const branch = document.getElementById('gh-branch').value.trim() || 'main';
+    const token  = document.getElementById('gh-token').value.trim();
+
+    const lines = [
+      '# ============================================================',
+      '# Doodle Poll Configuration – auto-generated by setup.html',
+      '# ============================================================',
+      '',
+      '[poll]',
+      `title = ${title}`,
+      `description = ${desc}`,
+      `organizer = ${org}`,
+      '',
+      '[github]',
+      `owner = ${owner || 'YOUR_GITHUB_USERNAME'}`,
+      `repo = ${repo || 'YOUR_REPO_NAME'}`,
+      `branch = ${branch}`,
+      `token = ${token || 'YOUR_GITHUB_TOKEN'}`,
+      '',
+      '[slots]',
+      '# Format: YYYY-MM-DD HH:MM  or  YYYY-MM-DD',
+      ...slots,
+    ];
+    return lines.join('\n');
+  }
+
+  function updatePreview() {
+    const pre = document.querySelector('#config-preview code');
+    if (pre) pre.textContent = buildConfig();
+  }
+
+  // ── Save to GitHub ─────────────────────────────────────────────────────────
+  async function saveToGitHub() {
+    const owner  = document.getElementById('gh-owner').value.trim();
+    const repo   = document.getElementById('gh-repo').value.trim();
+    const branch = document.getElementById('gh-branch').value.trim() || 'main';
+    const token  = document.getElementById('gh-token').value.trim();
+    const statusEl = document.getElementById('save-status');
+
+    if (!owner || !repo || !token) {
+      showStatus('Please fill in GitHub Username, Repository, and Token.', false);
+      return;
+    }
+    if (!slots.length) {
+      showStatus('Please add at least one time slot.', false);
+      return;
+    }
+
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    statusEl.classList.add('hidden');
+
+    try {
+      const content = buildConfig();
+      const encoded = btoa(unescape(encodeURIComponent(content)));
+
+      // Check if file already exists (need its SHA to update)
+      let sha = null;
+      const checkRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/config.txt`, {
+        headers: { 'Authorization': `token ${token}` }
+      });
+      if (checkRes.ok) {
+        const existing = await checkRes.json();
+        sha = existing.sha;
+      }
+
+      const body = { message: 'Update poll config via setup.html', content: encoded, branch };
+      if (sha) body.sha = sha;
+
+      const putRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/config.txt`, {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!putRes.ok) {
+        const err = await putRes.json().catch(() => ({}));
+        throw new Error(err.message || `GitHub API error ${putRes.status}`);
+      }
+
+      showStatus('✓ config.txt saved to GitHub! GitHub Pages may take ~1 minute to update.', true);
+    } catch (err) {
+      showStatus('Error: ' + err.message, false);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save to GitHub';
+    }
+  }
+
+  function showStatus(msg, ok) {
+    const el = document.getElementById('save-status');
+    el.textContent = msg;
+    el.className = 'status-msg ' + (ok ? 'status-ok' : 'status-err');
+    el.classList.remove('hidden');
+  }
+
+  // ── Download config.txt ────────────────────────────────────────────────────
+  function downloadConfig() {
+    if (!slots.length) { alert('Add at least one time slot first.'); return; }
+    const content = buildConfig();
+    const blob = new Blob([content], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'config.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  // Try to load existing config.txt to pre-fill the form
+  async function init() {
+    try {
+      const res = await fetch('config.txt?_=' + Date.now());
+      if (!res.ok) return;
+      const text = await res.text();
+      // Parse and pre-fill
+      let section = null;
+      for (const raw of text.split('\n')) {
+        const line = raw.trim();
+        if (!line || line.startsWith('#')) continue;
+        const sec = line.match(/^\[(\w+)\]$/);
+        if (sec) { section = sec[1]; continue; }
+        if (section === 'poll' || section === 'github') {
+          const eq = line.indexOf('=');
+          if (eq > 0) {
+            const k = line.slice(0, eq).trim();
+            const v = line.slice(eq + 1).trim();
+            const map = {
+              title: 'poll-title', description: 'poll-desc', organizer: 'poll-org',
+              owner: 'gh-owner', repo: 'gh-repo', branch: 'gh-branch', token: 'gh-token'
+            };
+            if (map[k]) {
+              const el = document.getElementById(map[k]);
+              if (el && !v.startsWith('YOUR_')) el.value = v;
+            }
+          }
+        } else if (section === 'slots') {
+          if (line && !slots.includes(line)) slots.push(line);
+        }
+      }
+      renderSlots();
+    } catch (_) {}
+  }
+
+  renderSlots();
+  updatePreview();
+  init();
+</script>
+</body>
+</html>
