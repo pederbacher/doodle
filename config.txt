@@ -13,4 +13,4 @@ repo = doodle
 branch = main
 # Fine-grained Personal Access Token with "Contents: Read & Write" for this repo
 # Create one at: GitHub → Settings → Developer settings → Fine-grained tokens
-token = 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
+token = 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
