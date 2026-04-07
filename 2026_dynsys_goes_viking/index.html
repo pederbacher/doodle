@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doodle Poll</title>
+  <style>
+    :root {
+      --bg: #f0f4f8;
+      --card: #ffffff;
+      --primary: #3b82f6;
+      --primary-dark: #2563eb;
+      --yes: #22c55e;
+      --yes-light: #dcfce7;
+      --yes-dark: #16a34a;
+      --maybe: #f59e0b;
+      --maybe-light: #fef3c7;
+      --maybe-dark: #d97706;
+      --no: #ef4444;
+      --no-light: #fee2e2;
+      --no-dark: #dc2626;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 10px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .container { max-width: 700px; margin: 0 auto; }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
+    h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; }
+    .description { color: var(--muted); margin-bottom: 6px; font-size: 0.95rem; }
+    .organizer { font-size: 0.85rem; color: var(--muted); margin-bottom: 0; }
+    .organizer strong { color: var(--text); }
+
+    .field { margin-bottom: 24px; }
+    label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    input[type="text"]:focus, input[type="password"]:focus { border-color: var(--primary); }
+
+    .slots-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .slots-legend { display: flex; gap: 12px; font-size: 0.78rem; color: var(--muted); }
+    .legend-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; }
+
+    .slot-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .slot-row:last-child { border-bottom: none; }
+    .slot-label { font-size: 0.95rem; }
+    .slot-date { font-weight: 600; }
+    .slot-time { font-size: 0.82rem; color: var(--muted); }
+
+    .btn-group { display: flex; gap: 6px; }
+    .vote-btn {
+      padding: 7px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff;
+      color: var(--muted);
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .vote-btn:hover { border-color: #94a3b8; color: var(--text); }
+    .vote-btn.yes   { background: var(--yes-light);   border-color: var(--yes);   color: var(--yes-dark); }
+    .vote-btn.maybe { background: var(--maybe-light); border-color: var(--maybe); color: var(--maybe-dark); }
+    .vote-btn.no    { background: var(--no-light);    border-color: var(--no);    color: var(--no-dark); }
+
+    .submit-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 20px;
+    }
+    .submit-btn:hover { background: var(--primary-dark); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .nav-links { text-align: center; margin-top: 16px; }
+    .nav-links a { color: var(--primary); text-decoration: none; font-size: 0.9rem; margin: 0 10px; }
+    .nav-links a:hover { text-decoration: underline; }
+
+    #state-loading, #state-error, #state-success { text-align: center; padding: 48px 24px; }
+    #state-error { color: var(--no-dark); }
+    #state-success h2 { font-size: 1.5rem; margin-bottom: 12px; color: var(--yes-dark); }
+    #state-success p { color: var(--muted); margin-bottom: 24px; }
+    .success-icon { font-size: 3rem; margin-bottom: 16px; }
+    .btn-link {
+      display: inline-block; padding: 10px 22px;
+      background: var(--primary); color: #fff;
+      border-radius: 8px; text-decoration: none;
+      font-weight: 600; margin: 6px; font-size: 0.9rem;
+    }
+    .btn-link.secondary {
+      background: transparent; color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .spinner {
+      display: inline-block; width: 36px; height: 36px;
+      border: 3px solid var(--border); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-msg { background: var(--no-light); border: 1px solid var(--no); border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 0.9rem; color: var(--no-dark); }
+    .hidden { display: none !important; }
+
+    /* Access word gate */
+    #state-access { text-align: center; padding: 48px 24px; }
+    #state-access h2 { font-size: 1.3rem; margin-bottom: 8px; }
+    #state-access p { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
+    .access-form { max-width: 320px; margin: 0 auto; }
+    .access-form input { text-align: center; letter-spacing: 0.05em; margin-bottom: 12px; }
+
+    @media (max-width: 480px) {
+      .card { padding: 20px 16px; }
+      .btn-group { flex-direction: column; }
+      .vote-btn { padding: 8px 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div id="state-loading" class="card">
+    <div class="spinner"></div>
+    <p style="color:var(--muted)">Loading poll…</p>
+  </div>
+
+  <div id="state-error" class="card hidden">
+    <p style="font-size:2rem;margin-bottom:12px">⚠️</p>
+    <p id="error-msg"></p>
+    <p style="margin-top:12px;font-size:0.85rem;color:var(--muted)">Make sure <code>config.txt</code> is properly configured.</p>
+  </div>
+
+  <!-- Access word gate -->
+  <div id="state-access" class="card hidden">
+    <p style="font-size:2rem;margin-bottom:12px">🔑</p>
+    <h2 id="access-poll-title"></h2>
+    <p>Enter the access word to participate in this poll.</p>
+    <div class="access-form">
+      <input type="password" id="access-input" placeholder="Access word" autocomplete="off" />
+      <div id="access-error" class="error-msg hidden">Incorrect access word.</div>
+      <button class="submit-btn" onclick="submitAccessWord()">Continue</button>
+    </div>
+  </div>
+
+  <!-- Poll form -->
+  <div id="state-poll" class="hidden">
+    <div class="card">
+      <h1 id="poll-title"></h1>
+      <p class="description" id="poll-desc"></p>
+      <p class="organizer">Organized by <strong id="poll-organizer"></strong></p>
+    </div>
+
+    <div class="card">
+      <form id="vote-form" novalidate>
+        <div class="field">
+          <label for="voter-name">Your name *</label>
+          <input type="text" id="voter-name" placeholder="e.g. Jane Smith" required />
+        </div>
+
+        <div class="slots-header">
+          <label style="margin:0">Your availability</label>
+          <div class="slots-legend">
+            <span><span class="legend-dot" style="background:var(--yes)"></span>Yes</span>
+            <span><span class="legend-dot" style="background:var(--maybe)"></span>Maybe</span>
+            <span><span class="legend-dot" style="background:var(--no)"></span>No</span>
+          </div>
+        </div>
+
+        <div id="slots-list"></div>
+
+        <div id="form-error" class="error-msg hidden"></div>
+        <button type="submit" class="submit-btn" id="submit-btn">Submit Availability</button>
+      </form>
+    </div>
+
+    <div class="nav-links">
+      <a href="results.html">View Results</a>
+    </div>
+  </div>
+
+  <div id="state-success" class="card hidden">
+    <div class="success-icon">✅</div>
+    <h2>Thank you!</h2>
+    <p>Your availability has been saved.</p>
+    <a href="results.html" class="btn-link">View Results</a>
+    <a href="index.html" class="btn-link secondary">Submit Another</a>
+  </div>
+
+</div>
+<script>
+  let config = null;
+  const votes = {};
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function show(id) {
+    ['state-loading','state-error','state-access','state-poll','state-success'].forEach(s => {
+      document.getElementById(s).classList.toggle('hidden', s !== id);
+    });
+  }
+  function showError(msg) {
+    document.getElementById('error-msg').textContent = msg;
+    show('state-error');
+  }
+
+  // Derive the doodle subfolder name from the current URL path.
+  // e.g. /doodle/team-meeting/index.html → 'team-meeting'
+  function getDoodleFolder() {
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    const last = parts[parts.length - 1] || '';
+    // If last segment has an extension it's a filename; folder is one level up
+    return last.includes('.') ? (parts[parts.length - 2] || '') : last;
+  }
+
+  // ── Access word ────────────────────────────────────────────────────────────
+  const ACCESS_KEY = 'doodle_access_' + getDoodleFolder();
+
+  function isAccessGranted(required) {
+    if (!required) return true;
+    return sessionStorage.getItem(ACCESS_KEY) === required;
+  }
+
+  function submitAccessWord() {
+    const entered = document.getElementById('access-input').value.trim();
+    const errEl = document.getElementById('access-error');
+    if (entered === config.poll.access_word) {
+      sessionStorage.setItem(ACCESS_KEY, entered);
+      errEl.classList.add('hidden');
+      show('state-poll');
+    } else {
+      errEl.classList.remove('hidden');
+      document.getElementById('access-input').select();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const inp = document.getElementById('access-input');
+    if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') submitAccessWord(); });
+  });
+
+  // ── Config parsing ─────────────────────────────────────────────────────────
+  function parseConfig(text) {
+    const cfg = { poll: {}, github: {}, slots: [] };
+    let section = null;
+    for (const raw of text.split('\n')) {
+      const line = raw.trim();
+      if (!line || line.startsWith('#')) continue;
+      const sec = line.match(/^\[(\w+)\]$/);
+      if (sec) { section = sec[1]; continue; }
+      if (section === 'poll' || section === 'github') {
+        const eq = line.indexOf('=');
+        if (eq > 0) cfg[section][line.slice(0, eq).trim()] = line.slice(eq + 1).trim();
+      } else if (section === 'slots') {
+        if (line) cfg.slots.push(line);
+      }
+    }
+    return cfg;
+  }
+
+  // ── Slot formatting ────────────────────────────────────────────────────────
+  function formatSlot(slot) {
+    const parts = slot.split(' ');
+    const [y, m, d] = parts[0].split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    const dateStr = date.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+    if (parts[1]) {
+      const [h, min] = parts[1].split(':').map(Number);
+      const t = new Date(y, m - 1, d, h, min);
+      return { date: dateStr, time: t.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' }) };
+    }
+    return { date: dateStr, time: 'All day' };
+  }
+
+  // ── Render slots ───────────────────────────────────────────────────────────
+  function renderSlots(slots) {
+    const container = document.getElementById('slots-list');
+    container.innerHTML = '';
+    slots.forEach(slot => {
+      const { date, time } = formatSlot(slot);
+      votes[slot] = 'no';
+      const row = document.createElement('div');
+      row.className = 'slot-row';
+      row.innerHTML = `
+        <div class="slot-label">
+          <div class="slot-date">${escHtml(date)}</div>
+          <div class="slot-time">${escHtml(time)}</div>
+        </div>
+        <div class="btn-group">
+          <button type="button" class="vote-btn" data-slot="${escHtml(slot)}" data-val="yes">✓ Yes</button>
+          <button type="button" class="vote-btn" data-slot="${escHtml(slot)}" data-val="maybe">~ Maybe</button>
+          <button type="button" class="vote-btn" data-slot="${escHtml(slot)}" data-val="no">✗ No</button>
+        </div>`;
+      container.appendChild(row);
+    });
+
+    container.addEventListener('click', e => {
+      const btn = e.target.closest('.vote-btn');
+      if (!btn) return;
+      votes[btn.dataset.slot] = btn.dataset.val;
+      btn.closest('.btn-group').querySelectorAll('.vote-btn').forEach(b => b.className = 'vote-btn');
+      btn.classList.add(btn.dataset.val);
+    });
+  }
+
+  // ── Build response content ─────────────────────────────────────────────────
+  function buildResponseText(name) {
+    return [
+      `Name: ${name}`,
+      `Submitted: ${new Date().toISOString()}`,
+      '',
+      ...config.slots.map(s => `${s}: ${votes[s] || 'no'}`)
+    ].join('\n');
+  }
+
+  // ── Save response to GitHub ────────────────────────────────────────────────
+  async function saveResponse(name) {
+    const { owner, repo, branch, token } = config.github;
+    if (!owner || !repo || !token || owner.startsWith('YOUR')) {
+      throw new Error('GitHub is not configured. Please edit the global config.txt.');
+    }
+    const folder = getDoodleFolder();
+    const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').slice(0, 30);
+    const filename = `${folder}/responses/${slug}-${Date.now()}.txt`;
+    const encoded = btoa(unescape(encodeURIComponent(buildResponseText(name))));
+
+    const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filename}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: `Response from ${name}`, content: encoded, branch: branch || 'main' })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `GitHub API error ${res.status}`);
+    }
+  }
+
+  // ── Form submit ────────────────────────────────────────────────────────────
+  document.getElementById('vote-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('voter-name').value.trim();
+    const errEl = document.getElementById('form-error');
+    errEl.classList.add('hidden');
+    if (!name) {
+      errEl.textContent = 'Please enter your name.';
+      errEl.classList.remove('hidden');
+      return;
+    }
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    try {
+      await saveResponse(name);
+      show('state-success');
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Submit Availability';
+    }
+  });
+
+  // ── Init ───────────────────────────────────────────────────────────────────
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function init() {
+    try {
+      // Load global config (GitHub credentials) from parent folder
+      const globalRes = await fetch('../config.txt?_=' + Date.now());
+      if (!globalRes.ok) throw new Error('Global config.txt not found in parent folder.');
+      const globalCfg = parseConfig(await globalRes.text());
+
+      // Load local doodle config
+      const localRes = await fetch('config.txt?_=' + Date.now());
+      if (!localRes.ok) throw new Error('config.txt not found in this doodle folder.');
+      const localCfg = parseConfig(await localRes.text());
+
+      config = { poll: localCfg.poll, slots: localCfg.slots, github: globalCfg.github };
+
+      if (!config.slots.length) throw new Error('No time slots found in config.txt.');
+
+      document.getElementById('poll-title').textContent = config.poll.title || 'When can we meet?';
+      document.getElementById('poll-desc').textContent  = config.poll.description || '';
+      document.getElementById('poll-organizer').textContent = config.poll.organizer || 'Unknown';
+      document.title = config.poll.title || 'Doodle Poll';
+
+      renderSlots(config.slots);
+
+      // Check access word
+      if (config.poll.access_word && !isAccessGranted(config.poll.access_word)) {
+        document.getElementById('access-poll-title').textContent = config.poll.title || 'Doodle Poll';
+        show('state-access');
+      } else {
+        show('state-poll');
+      }
+    } catch (err) {
+      showError(err.message);
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

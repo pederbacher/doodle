@@ -1,0 +1,23 @@
+# ============================================================
+# Doodle Poll Configuration
+# Edit this file, then copy the whole folder for each new poll.
+# ============================================================
+
+[poll]
+title = Viking sail trip
+description = Please indicate your availability for the proposed time slots below.
+organizer = Peder
+# Access word participants must enter to vote / view results.
+# Remove or leave blank to disable the gate.
+access_word = dynsys_goes_viking
+
+[slots]
+# One time slot per line.
+# Formats:  YYYY-MM-DD HH:MM   (date + time)
+#           YYYY-MM-DD          (all day)
+2026-06-09 14:00
+2026-06-10 14:00
+2026-06-11 14:00
+2026-06-16 14:00
+2026-06-17 14:00
+2026-06-18 14:00
