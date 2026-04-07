@@ -1,9 +1,6 @@
 # ============================================================
 # Global Doodle Configuration
-# Contains GitHub settings shared by all doodles.
-# The GitHub token is NOT stored here — it lives in your browser's
-# localStorage and is never committed to the repository.
-# Use setup.html to enter your token.
+# The GitHub token is stored in your browser localStorage, not here.
 # ============================================================
 
 [github]
