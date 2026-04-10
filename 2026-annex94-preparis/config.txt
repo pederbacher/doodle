@@ -1,0 +1,16 @@
+# Doodle Poll Configuration
+
+[poll]
+title = 2026 Annex94 PreParis
+description = 
+organizer = Peder
+
+[slots]
+# YYYY-MM-DD HH:MM  or  YYYY-MM-DD
+2026-04-15 11:00
+2026-04-15 14:00
+2026-04-15 15:00
+2026-04-16 10:00
+2026-04-16 13:00
+2026-04-16 14:00
+2026-04-16 15:00
