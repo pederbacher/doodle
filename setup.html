@@ -101,7 +101,8 @@
       <label for="gh-token">Personal Access Token</label>
       <input type="password" id="gh-token" placeholder="github_pat_…" autocomplete="off" />
       <p class="hint">
-        Stored <strong>only in this browser</strong> — never written to the repository.
+        Never written to the repository. Create a local <code>token.txt</code> file in the repo root
+        containing just the token — it is gitignored and auto-loaded here when served locally.
         Contents: Read &amp; Write permission on this repository.
       </p>
     </div>
@@ -436,14 +437,15 @@
 
   // ── Init ──────────────────────────────────────────────────────────────────
   async function init() {
-    // Pre-fill token from localStorage (never comes from the repo)
-    const savedToken = localStorage.getItem('gh_token');
-    if (savedToken) document.getElementById('gh-token').value = savedToken;
-
-    // Save token to localStorage whenever it changes
-    document.getElementById('gh-token').addEventListener('input', e => {
-      localStorage.setItem('gh_token', e.target.value.trim());
-    });
+    // Pre-fill token from local token.txt (gitignored — create it manually).
+    // Only works when served locally; on GitHub Pages this will 404 silently.
+    try {
+      const res = await fetch('token.txt?_=' + Date.now());
+      if (res.ok) {
+        const tok = (await res.text()).trim();
+        if (tok) document.getElementById('gh-token').value = tok;
+      }
+    } catch (_) {}
 
     // Pre-fill owner/repo/branch from config.txt
     try {
