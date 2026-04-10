@@ -1,156 +1,163 @@
 # Doodle Polls
 
-A lightweight, serverless scheduling poll hosted entirely on GitHub Pages. No backend required — responses are saved as `.txt` files in the repository via the GitHub API.
+A lightweight, serverless scheduling poll hosted on GitHub Pages. No backend — responses are saved as `.txt` files via the GitHub API.
+
+---
 
 ## How it works
 
-- **One global config** at the repo root holds your GitHub credentials.
-- **Each poll lives in its own subfolder** (copied from `template/`).
-- Participants visit `YOUR_DOODLE/` to vote and `YOUR_DOODLE/results.html` to see results.
-- An optional **access word** per poll controls who can vote and view results.
+- Each poll lives in its own subfolder copied from `template/`.
+- Participants open a **share link** that carries a token fragment (`#t=…`) so they can submit responses.
+- Responses are written directly to the repo via the GitHub API and displayed on the results page.
 
 ---
 
-## Initial Setup (one-time)
+## Initial setup (one-time)
 
-### 1. Enable GitHub Pages
+### 1. Fork / clone the repo and enable GitHub Pages
 
-In your repository: **Settings → Pages → Source: Deploy from branch → `main` → `/ (root)`**
+```bash
+git clone git@github.com:YOU/doodle.git
+cd doodle
+```
 
-### 2. Configure GitHub credentials
+In the repo on GitHub: **Settings → Pages → Source: Deploy from branch → `main` → `/ (root)`**
 
-Open `setup.html` (via your Pages URL) and fill in **Section 1**:
+### 2. Create a Personal Access Token
 
-| Field | Description |
-|-------|-------------|
-| GitHub Username | Your GitHub username |
-| Repository Name | This repository's name |
-| Branch | Usually `main` |
-| Personal Access Token | Fine-grained token with **Contents: Read & Write** on this repo |
+1. GitHub → profile picture → **Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token**
+2. Set **Repository access** to this repo only, **Contents: Read & Write**.
 
-**The token is stored only in your browser's localStorage — it is never written to any file or committed to the repository.** GitHub automatically revokes tokens pushed to public repos, so this is intentional.
+### 3. Store the token locally
 
-#### Creating a Personal Access Token
+```bash
+echo 'github_pat_YOUR_TOKEN_HERE' > token.txt
+```
 
-Note there is a link to this in the 'setup.html'
+`token.txt` is gitignored — it never gets committed. This is the only place your token lives at rest.
 
-1. Click your **profile picture** (top-right on GitHub) → **Settings**
-2. Scroll to the bottom of the left sidebar → **Developer settings**
-3. **Personal access tokens → Fine-grained tokens → Generate new token**
-4. Key settings:
-   - **Resource owner**: your username
-   - **Repository access**: Only select repositories → pick this repo
-   - **Permissions → Repository permissions → Contents**: Read and write
+### 4. Configure global settings
 
-Click **Save Global Config to GitHub** — this writes `owner`, `repo`, and `branch` to the root `config.txt`. The token stays local to your browser.
+Serve the repo locally and open `setup.html`:
+
+```bash
+python3 -m http.server 8000
+# open http://localhost:8000/setup.html
+```
+
+Fill in **Section 1** (username, repo name, branch — the token auto-loads from `token.txt`), then click **Save Global Config to GitHub**. This writes `owner`, `repo`, and `branch` to the root `config.txt`.
 
 ---
 
-## Creating a New Poll
+## Creating a new poll
 
-### Option A — via setup.html (no git needed)
+### Option A — via setup.html
 
-1. Open `setup.html` and make sure Section 1 credentials are filled in.
-2. In **Section 2**, fill in:
-   - **Folder Name** — URL slug, e.g. `team-meeting` (lowercase, hyphens only)
-   - **Poll Title**, Description, Organizer
-   - **Access Word** — participants must enter this to vote/view results (leave blank to disable)
-   - **Time Slots** — one per line, format `YYYY-MM-DD HH:MM` or `YYYY-MM-DD` for all-day
-3. Click **Save Doodle Config to GitHub** — creates `team-meeting/config.txt` and `team-meeting/responses/.gitkeep` in the repo.
-4. In the repo, **copy the `template/` folder** and rename it to `team-meeting/`.
-5. Commit and push. GitHub Pages serves it within ~1 minute.
+1. Open `setup.html` locally (see above).
+2. In **Section 2**, fill in folder name, title, organizer, optional access word, and time slots.
+3. Click **Save Doodle Config to GitHub** — creates `FOLDER/config.txt` and `FOLDER/responses/.gitkeep` in the repo.
+4. Copy the `template/` folder locally and push:
 
-### Option B — manually (fastest once you know the workflow)
+```bash
+cp -r template/ FOLDER/
+git add FOLDER/
+git commit -m "Add doodle FOLDER"
+git push
+```
 
-1. Copy the `template/` folder, rename it to your poll slug (e.g. `birthday-party/`).
-2. Edit `birthday-party/config.txt`:
+### Option B — manually
+
+```bash
+cp -r template/ my-poll/
+```
+
+Edit `my-poll/config.txt`:
 
 ```ini
 [poll]
-title = Birthday Party – When can you come?
-description = Pick your preferred dates below.
-organizer = Peder
-access_word = sunshine42
+title       = When can we meet?
+description = Pick your preferred dates.
+organizer   = Peder
+access_word = sunshine42        # leave blank to disable
 
 [slots]
 2026-05-10 18:00
 2026-05-11 18:00
-2026-05-17 18:00
+2026-05-17
 ```
 
-3. Commit and push.
+```bash
+git add my-poll/
+git commit -m "Add doodle my-poll"
+git push
+```
 
 ---
 
-## Sharing a Poll
+## Sharing a poll
 
-After the folder is pushed and Pages has deployed, use setup.html to generate a **share link** for the doodle. The share link looks like:
+The share link embeds the token as a base64 hash fragment so participants can submit without any setup:
 
 ```
-https://USERNAME.github.io/REPO/FOLDER/#t=BASE64_ENCODED_TOKEN
+https://YOU.github.io/doodle/FOLDER/#t=BASE64_TOKEN
 ```
 
-The `#fragment` part carries the token encoded — browsers never send URL fragments to servers, so it is not logged anywhere and GitHub's secret scanner never sees it. When a participant opens the link, their browser silently stores the token in localStorage and cleans up the URL. They can then vote without any extra steps.
+Browsers never send URL fragments to servers, so the token is not logged anywhere. When a participant opens the link their browser stores it in `localStorage` for that session.
+
+**Always share this link — not the plain URL.** Opening the plain URL in a fresh browser will show "No GitHub token found".
+
+To generate the link, open `setup.html` locally → **Section 3**, enter the folder name, click **Generate Share Link**, then copy it.
 
 | Page | URL |
 |------|-----|
-| Vote (share link) | Generated by setup.html — includes the token fragment |
-| Results | `https://USERNAME.github.io/REPO/FOLDER/results.html` |
-
-> The results page also works with the token fragment if needed: append `#t=BASE64_TOKEN` to the results URL in the same way.
+| Vote | Share link from Section 3 (includes `#t=…`) |
+| Results | `https://YOU.github.io/doodle/FOLDER/results.html` |
 
 ---
 
-## Access Word
+## Access word
 
-Each doodle can have an `access_word` in its `config.txt`. When set:
+When `access_word` is set in a poll's `config.txt`, participants must enter it before voting or viewing results. It is stored for the browser session. Leave blank or omit to make the poll public.
 
-- Visitors must enter the word before they can vote or view results.
-- The word is remembered for the browser session (no re-entry needed when navigating between vote and results pages).
-- Leave `access_word` blank or remove the line entirely to make the poll publicly accessible.
-
-> Note: The access word is stored in the plaintext `config.txt` which is publicly readable. It provides basic access control (obscurity), not cryptographic security.
+> The access word is in a public plaintext file — it provides obscurity, not cryptographic security.
 
 ---
 
-## File Structure
+## File structure
 
 ```
-config.txt                  ← Global: GitHub owner, repo, branch (token is in browser localStorage only)
-index.html                  ← Landing/hub page
-setup.html                  ← Setup UI for global config and new doodle creation
-results.html                ← Stub (results are per-doodle)
+.gitignore                  ← Ignores token.txt
+token.txt                   ← Your GitHub token (gitignored, create manually)
+config.txt                  ← Global: owner, repo, branch
+setup.html                  ← UI for global config, new polls, and share links
 
 template/
-  config.txt                ← Template doodle config — edit this for each new poll
-  index.html                ← Vote page (copy unchanged)
-  results.html              ← Results page (copy unchanged)
-  responses/.gitkeep        ← Keeps the responses folder tracked by git
+  config.txt                ← Edit this for each new poll
+  index.html                ← Vote page
+  results.html              ← Results page
+  responses/.gitkeep
 
-your-poll-name/             ← Created by copying template/
-  config.txt                ← Poll-specific config (title, slots, access_word)
-  index.html                ← Identical to template/index.html
-  results.html              ← Identical to template/results.html
+your-poll-name/             ← Copied from template/
+  config.txt
+  index.html
+  results.html
   responses/
-    alice-1234567890.txt    ← One file per response, written via GitHub API
-    bob-1234567891.txt
+    alice-1234567890.txt    ← One file per submission
 ```
 
 ---
 
-## Doodle config.txt reference
+## config.txt reference
 
 ```ini
 [poll]
-title       = When can we meet?          # Required
-description = Context for participants.  # Optional
-organizer   = Your Name                  # Optional
-access_word = secret123                  # Optional — leave blank to disable gate
+title       = When can we meet?          # required
+description = Context for participants.  # optional
+organizer   = Your Name                  # optional
+access_word = secret123                  # optional
 
 [slots]
-# One slot per line
-# Date + time (24h):  YYYY-MM-DD HH:MM
-# All day:            YYYY-MM-DD
+# YYYY-MM-DD HH:MM  or  YYYY-MM-DD (all day)
 2026-04-15 09:00
 2026-04-15 14:00
 2026-04-17
@@ -160,12 +167,10 @@ access_word = secret123                  # Optional — leave blank to disable g
 
 ## Voting options
 
-Participants choose one of three responses per slot:
-
-| Symbol | Meaning |
-|--------|---------|
+| | Meaning |
+|---|---------|
 | ✓ Yes | Available |
 | ~ Maybe | Possibly available |
 | ✗ No | Not available |
 
-The results page ranks slots by score (`yes × 2 + maybe`) and shows the full response grid.
+Results are ranked by score (`yes × 2 + maybe`).
