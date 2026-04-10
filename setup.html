@@ -59,6 +59,10 @@
     .nav-links a { color: var(--primary); text-decoration: none; font-size: 0.9rem; margin: 0 10px; }
     .nav-links a:hover { text-decoration: underline; }
     hr { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+    .share-box { display: flex; gap: 8px; margin-top: 12px; }
+    .share-box input { flex: 1; font-family: monospace; font-size: 0.82rem; background: #f8fafc; }
+    .copy-btn { padding: 9px 16px; background: var(--yes-dark); color: #fff; border: none; border-radius: 8px; font-weight: 600; font-size: 0.88rem; cursor: pointer; white-space: nowrap; }
+    .copy-btn:hover { background: #15803d; }
   </style>
 </head>
 <body>
@@ -162,13 +166,36 @@
     </details>
   </div>
 
-  <!-- ── SECTION 3: Next Steps ─────────────────────────────────────────────── -->
+  <!-- ── SECTION 3: Share Link ────────────────────────────────────────────── -->
+  <div class="card">
+    <h2><span class="step-badge">3</span> Get Share Link</h2>
+    <div class="warning">
+      <strong>⚠️ Always share this link — not the plain URL</strong>
+      The link below embeds the GitHub token so participants can submit responses.
+      If you share the plain URL without <code>#t=…</code>, they will get a "No GitHub token found" error.
+    </div>
+    <div class="field">
+      <label for="share-folder">Folder Name</label>
+      <input type="text" id="share-folder" placeholder="e.g. team-meeting" />
+      <p class="hint">Must match the folder name used in Section 2 (and in your repo).</p>
+    </div>
+    <button class="add-btn" onclick="generateShareLink()">Generate Share Link</button>
+    <div id="share-link-box" class="hidden">
+      <div class="share-box">
+        <input type="text" id="share-link-input" readonly />
+        <button class="copy-btn" onclick="copyShareLink()">Copy</button>
+      </div>
+      <p id="share-copy-confirm" class="hidden" style="font-size:0.82rem;color:var(--yes-dark);margin-top:6px">✓ Copied to clipboard!</p>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: Next Steps ─────────────────────────────────────────────── -->
   <div class="card">
     <h2>Next Steps After Saving</h2>
     <ol style="padding-left:20px">
       <li style="margin-bottom:8px;font-size:0.9rem">In your repo, copy the <code>template/</code> folder and rename it to match the <strong>Folder Name</strong> you chose above.</li>
       <li style="margin-bottom:8px;font-size:0.9rem">Commit and push — GitHub Pages serves it within ~1 minute.</li>
-      <li style="margin-bottom:8px;font-size:0.9rem">Share the poll URL: <code>https://YOUR_USERNAME.github.io/YOUR_REPO/FOLDER_NAME/</code></li>
+      <li style="margin-bottom:8px;font-size:0.9rem">Use <strong>Section 3</strong> above to get the share link and send it to participants.</li>
     </ol>
   </div>
 
@@ -343,11 +370,10 @@
       try {
         await putFile(`${folder}/responses/.gitkeep`, '', `Create responses folder for ${folder}`, creds);
       } catch (_) { /* already exists, fine */ }
-      const shareLink = getShareLink(folder);
-      const msg = `✓ Config saved! Now copy the template/ folder in your repo to "${folder}/" and push.\n\nShare this voting link (it contains the token so participants can submit):\n${shareLink}`;
-      showStatus('doodle-status', msg, true);
-      document.getElementById('doodle-status').style.whiteSpace = 'pre-wrap';
-      document.getElementById('doodle-status').style.wordBreak = 'break-all';
+      showStatus('doodle-status', `✓ Config saved! Copy the template/ folder in your repo to "${folder}/" and push. Then use Section 3 to get the share link.`, true);
+      // Pre-fill the share link section
+      document.getElementById('share-folder').value = folder;
+      generateShareLink();
     } catch (err) {
       showStatus('doodle-status', 'Error: ' + err.message, false);
     } finally {
@@ -361,6 +387,34 @@
     const token = document.getElementById('gh-token').value.trim();
     const base  = `https://${owner}.github.io/${repo}/${folder}/`;
     return token ? base + '#t=' + btoa(token) : base;
+  }
+
+  function generateShareLink() {
+    const folder = document.getElementById('share-folder').value.trim();
+    const owner  = document.getElementById('gh-owner').value.trim();
+    const repo   = document.getElementById('gh-repo').value.trim();
+    const token  = document.getElementById('gh-token').value.trim();
+    if (!folder || !owner || !repo || !token) {
+      alert('Fill in the GitHub credentials (Section 1) and the folder name first.');
+      return;
+    }
+    const link = getShareLink(folder);
+    document.getElementById('share-link-input').value = link;
+    document.getElementById('share-link-box').classList.remove('hidden');
+    document.getElementById('share-copy-confirm').classList.add('hidden');
+  }
+
+  function copyShareLink() {
+    const inp = document.getElementById('share-link-input');
+    inp.select();
+    navigator.clipboard.writeText(inp.value).then(() => {
+      const confirm = document.getElementById('share-copy-confirm');
+      confirm.classList.remove('hidden');
+      setTimeout(() => confirm.classList.add('hidden'), 3000);
+    }).catch(() => {
+      // fallback
+      document.execCommand('copy');
+    });
   }
 
   function downloadDoodleConfig() {
