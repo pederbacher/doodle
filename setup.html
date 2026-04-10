@@ -387,7 +387,7 @@
     const repo  = document.getElementById('gh-repo').value.trim();
     const token = document.getElementById('gh-token').value.trim();
     const base  = `https://${owner}.github.io/${repo}/${folder}/`;
-    return token ? base + '#t=' + btoa(token) : base;
+    return token ? base + '#t=' + encodeURIComponent(token) : base;
   }
 
   function generateShareLink() {

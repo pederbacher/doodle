@@ -200,7 +200,7 @@
   (function extractToken() {
     const m = window.location.hash.match(/[#&]t=([^&]+)/);
     if (m) {
-      try { localStorage.setItem('gh_token', atob(decodeURIComponent(m[1]))); } catch (_) {}
+      try { localStorage.setItem('gh_token', decodeURIComponent(m[1])); } catch (_) {}
       history.replaceState(null, '', location.pathname + location.search);
     }
   })();
