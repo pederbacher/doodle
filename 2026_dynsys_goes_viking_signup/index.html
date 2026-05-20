@@ -206,10 +206,10 @@
 
         <div class="slots-header">
           <label style="margin:0">Your availability</label>
-          <div class="slots-legend">
-            <span><span class="legend-dot" style="background:var(--yes)"></span>Yes</span>
-            <span><span class="legend-dot" style="background:var(--maybe)"></span>Maybe</span>
-            <span><span class="legend-dot" style="background:var(--no)"></span>No</span>
+          <div class="slots-legend" id="slots-legend">
+            <span data-opt="yes"><span class="legend-dot" style="background:var(--yes)"></span>Yes</span>
+            <span data-opt="maybe"><span class="legend-dot" style="background:var(--maybe)"></span>Maybe</span>
+            <span data-opt="no"><span class="legend-dot" style="background:var(--no)"></span>No</span>
           </div>
         </div>
 
@@ -352,6 +352,12 @@
   function renderSlots(slots) {
     const container = document.getElementById('slots-list');
     container.innerHTML = '';
+
+    const used = new Set();
+    slots.forEach(({ options }) => options.forEach(o => used.add(o)));
+    const isDefault = VALID_OPTS.every(o => used.has(o));
+    document.getElementById('slots-legend').classList.toggle('hidden', !isDefault);
+
     slots.forEach(({ slot, note, options }) => {
       const { date, time } = formatSlot(slot);
       votes[slot] = options[options.length - 1];
