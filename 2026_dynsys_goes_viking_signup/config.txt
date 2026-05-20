@@ -1,0 +1,41 @@
+# ============================================================
+# Doodle Poll Configuration
+# Edit this file, then copy the whole folder for each new poll.
+# ============================================================
+
+[poll]
+title = Dynsys vikingboat sailing and dinner
+organizer = Dynsys
+description = This is the sign-up! So binding! If you did submit your answer and
+need to change it, then contact pbac@dtu.dk. There will 20 seats in
+the boat, so first 20 get in the boat, rest coming with bus can relax
+or you can go yourself and join later!
+
+We will be here: https://maps.app.goo.gl/nZGsJjergUwyVwkF9 (more
+precise info later)
+
+Transport home we do individually, taking bus and train to Copenhagen
+is about one hour from the Vikingeskibsmuseum.
+
+The program is:
+13:30 Bus from DTU
+14:30-16:00 Sailing
+16:00-18:00 Fun
+18:00-21:00 Dinner here https://snekken.dk/
+
+Any questions pbac@dtu.dk
+
+# Access word participants must enter to vote / view results.
+# Remove or leave blank to disable the gate.
+# access_word = changeme
+# Optional image file in this folder (jpg, png, gif, webp, …).
+# Leave blank or remove to show no image.
+image = banner.jpg
+
+[slots]
+# One time slot per line.
+# Formats:  YYYY-MM-DD HH:MM   (date + time)
+#           YYYY-MM-DD          (all day)
+2026-06-16 13:30 Go with bus from DTU
+2026-06-16 14:30 Sailing
+2026-06-16 18:00 Sailing
