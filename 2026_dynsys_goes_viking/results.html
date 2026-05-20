@@ -242,6 +242,21 @@
   });
 
   // ── Config parsing ─────────────────────────────────────────────────────────
+  const VALID_OPTS = ['yes', 'maybe', 'no'];
+
+  function parseSlotLine(line) {
+    const parts = line.split(';').map(p => p.trim());
+    const slot = parts[0];
+    const note = parts[1] || '';
+    let options = ['yes', 'maybe', 'no'];
+    if (parts[2]) {
+      const tokens = parts[2].split(/[\/,]/).map(t => t.trim().toLowerCase()).filter(Boolean);
+      const valid = tokens.filter(t => VALID_OPTS.includes(t));
+      if (valid.length) options = valid;
+    }
+    return { slot, note, options };
+  }
+
   function parseConfig(text) {
     const cfg = { poll: {}, github: {}, slots: [] };
     let section = null;
@@ -254,7 +269,7 @@
         const eq = line.indexOf('=');
         if (eq > 0) cfg[section][line.slice(0, eq).trim()] = line.slice(eq + 1).trim();
       } else if (section === 'slots') {
-        if (line) cfg.slots.push(line);
+        if (line) cfg.slots.push(parseSlotLine(line));
       }
     }
     return cfg;
@@ -314,13 +329,14 @@
   }
 
   function computeScores(responses, slots) {
-    return slots.map(slot => {
+    return slots.map(({ slot, note, options }) => {
+      const fallback = options[options.length - 1];
       let yes = 0, maybe = 0, no = 0;
       responses.forEach(r => {
-        const v = r.votes[slot] || 'no';
+        const v = r.votes[slot] || fallback;
         if (v === 'yes') yes++; else if (v === 'maybe') maybe++; else no++;
       });
-      return { slot, yes, maybe, no, total: responses.length };
+      return { slot, note, options, yes, maybe, no, total: responses.length };
     });
   }
 
@@ -336,7 +352,7 @@
         <span style="font-size:1.2rem">${['🥇','🥈','🥉'][i]}</span>
         <div>
           <div class="label">${i === 0 ? 'Best option' : 'Option ' + (i+1)}</div>
-          <div class="slot">${escHtml(formatSlot(s.slot))}</div>
+          <div class="slot">${escHtml(formatSlot(s.slot))}${s.note ? ' — ' + escHtml(s.note) : ''}</div>
         </div>
         <div class="count">
           <span style="color:var(--yes-dark);font-weight:700">${s.yes}</span> yes
@@ -363,8 +379,9 @@
     </tr>`;
 
     document.getElementById('grid-body').innerHTML = scores.map(sc => {
+      const fallback = sc.options[sc.options.length - 1];
       const cells = responses.map(r => {
-        const v = r.votes[sc.slot] || 'no';
+        const v = r.votes[sc.slot] || fallback;
         const cls = v === 'yes' ? 'cell-yes' : v === 'maybe' ? 'cell-maybe' : 'cell-no';
         return `<td class="${cls}">${v === 'yes' ? '✓' : v === 'maybe' ? '~' : '✗'}</td>`;
       }).join('');
@@ -373,7 +390,10 @@
       const barMaybe = Math.round((sc.maybe / total) * 100);
       const barNo    = 100 - barYes - barMaybe;
       return `<tr>
-        <td>${escHtml(formatSlot(sc.slot))}</td>
+        <td>
+          <div>${escHtml(formatSlot(sc.slot))}</div>
+          ${sc.note ? `<div style="font-size:0.82rem;color:var(--muted);margin-top:2px">${escHtml(sc.note)}</div>` : ''}
+        </td>
         ${cells}
         <td>
           <div class="score"><span class="yes-count">${sc.yes}</span>/${total} yes${sc.maybe ? `, ${sc.maybe} maybe` : ''}</div>

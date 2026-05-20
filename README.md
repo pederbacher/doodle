@@ -157,11 +157,17 @@ organizer   = Your Name                  # optional
 access_word = secret123                  # optional
 
 [slots]
-# YYYY-MM-DD HH:MM  or  YYYY-MM-DD (all day)
+# YYYY-MM-DD HH:MM[; note][; options]   (note + options optional)
 2026-04-15 09:00
-2026-04-15 14:00
+2026-04-15 14:00; Lunch meeting
+2026-04-16 09:00; Bus from DTU; Yes/No
 2026-04-17
 ```
+
+Each slot line is `date [time][; note][; options]`:
+
+- **note** (optional) — short label shown next to the slot (e.g. "Sailing", "Bus from DTU").
+- **options** (optional) — any subset of `Yes / Maybe / No`, separated by `/`. Default is all three. Use `Yes/No` to hide the Maybe button.
 
 ---
 
@@ -172,5 +178,7 @@ access_word = secret123                  # optional
 | ✓ Yes | Available |
 | ~ Maybe | Possibly available |
 | ✗ No | Not available |
+
+Per slot, you can restrict which of these are offered via the third `;`-separated field in `[slots]` (e.g. `; Yes/No`).
 
 Results are ranked by score (`yes × 2 + maybe`).

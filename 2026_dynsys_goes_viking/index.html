@@ -81,6 +81,7 @@
     .slot-label { font-size: 0.95rem; }
     .slot-date { font-weight: 600; }
     .slot-time { font-size: 0.82rem; color: var(--muted); }
+    .slot-note { font-size: 0.88rem; color: var(--text); margin-top: 2px; }
 
     .btn-group { display: flex; gap: 6px; }
     .vote-btn {
@@ -299,6 +300,22 @@
   });
 
   // ── Config parsing ─────────────────────────────────────────────────────────
+  const VALID_OPTS = ['yes', 'maybe', 'no'];
+  const OPT_LABELS = { yes: '✓ Yes', maybe: '~ Maybe', no: '✗ No' };
+
+  function parseSlotLine(line) {
+    const parts = line.split(';').map(p => p.trim());
+    const slot = parts[0];
+    const note = parts[1] || '';
+    let options = ['yes', 'maybe', 'no'];
+    if (parts[2]) {
+      const tokens = parts[2].split(/[\/,]/).map(t => t.trim().toLowerCase()).filter(Boolean);
+      const valid = tokens.filter(t => VALID_OPTS.includes(t));
+      if (valid.length) options = valid;
+    }
+    return { slot, note, options };
+  }
+
   function parseConfig(text) {
     const cfg = { poll: {}, github: {}, slots: [] };
     let section = null;
@@ -311,7 +328,7 @@
         const eq = line.indexOf('=');
         if (eq > 0) cfg[section][line.slice(0, eq).trim()] = line.slice(eq + 1).trim();
       } else if (section === 'slots') {
-        if (line) cfg.slots.push(line);
+        if (line) cfg.slots.push(parseSlotLine(line));
       }
     }
     return cfg;
@@ -335,20 +352,22 @@
   function renderSlots(slots) {
     const container = document.getElementById('slots-list');
     container.innerHTML = '';
-    slots.forEach(slot => {
+    slots.forEach(({ slot, note, options }) => {
       const { date, time } = formatSlot(slot);
-      votes[slot] = 'no';
+      votes[slot] = options[options.length - 1];
+      const buttons = options.map(opt =>
+        `<button type="button" class="vote-btn" data-slot="${escHtml(slot)}" data-val="${opt}">${OPT_LABELS[opt]}</button>`
+      ).join('');
       const row = document.createElement('div');
       row.className = 'slot-row';
       row.innerHTML = `
         <div class="slot-label">
           <div class="slot-date">${escHtml(date)}</div>
           <div class="slot-time">${escHtml(time)}</div>
+          ${note ? `<div class="slot-note">${escHtml(note)}</div>` : ''}
         </div>
         <div class="btn-group">
-          <button type="button" class="vote-btn" data-slot="${escHtml(slot)}" data-val="yes">✓ Yes</button>
-          <button type="button" class="vote-btn" data-slot="${escHtml(slot)}" data-val="maybe">~ Maybe</button>
-          <button type="button" class="vote-btn" data-slot="${escHtml(slot)}" data-val="no">✗ No</button>
+          ${buttons}
         </div>`;
       container.appendChild(row);
     });
@@ -368,7 +387,7 @@
       `Name: ${name}`,
       `Submitted: ${new Date().toISOString()}`,
       '',
-      ...config.slots.map(s => `${s}: ${votes[s] || 'no'}`)
+      ...config.slots.map(s => `${s.slot}: ${votes[s.slot] || s.options[s.options.length - 1]}`)
     ].join('\n');
   }
 

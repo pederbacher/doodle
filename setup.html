@@ -150,10 +150,13 @@
     <label style="font-weight:600;font-size:0.88rem;margin-bottom:10px;display:block">Time Slots</label>
     <div id="slots-list"></div>
     <div class="slot-input-row">
-      <input type="text" id="slot-input" placeholder="YYYY-MM-DD HH:MM  or  YYYY-MM-DD" />
+      <input type="text" id="slot-input" placeholder="YYYY-MM-DD HH:MM[; note; Yes/No]" />
       <button class="add-btn" onclick="addSlot()">+ Add</button>
     </div>
-    <p class="hint">Examples: <code>2026-04-15 09:00</code> · <code>2026-04-17</code> (all day)</p>
+    <p class="hint">
+      Format: <code>date [time][; note][; options]</code>. Options are a subset of <code>Yes / Maybe / No</code> separated by <code>/</code>; default is all three.<br>
+      Examples: <code>2026-04-15 09:00</code> · <code>2026-04-17</code> (all day) · <code>2026-06-16 13:30; Bus from DTU; Yes/No</code>
+    </p>
 
     <div class="actions" style="margin-top:20px">
       <button class="btn-primary" id="save-doodle-btn" onclick="saveDoodleConfig()">Save Doodle Config to GitHub</button>
@@ -227,8 +230,9 @@
     const inp = document.getElementById('slot-input');
     const val = inp.value.trim();
     if (!val) return;
-    if (!/^\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?$/.test(val)) {
-      alert('Format must be YYYY-MM-DD or YYYY-MM-DD HH:MM');
+    const datePart = val.split(';')[0].trim();
+    if (!/^\d{4}-\d{2}-\d{2}( \d{2}:\d{2})?$/.test(datePart)) {
+      alert('Date/time must be YYYY-MM-DD or YYYY-MM-DD HH:MM (before any ";")');
       return;
     }
     if (slots.includes(val)) { alert('Slot already added.'); return; }
@@ -261,7 +265,7 @@
       `organizer = ${org}`,
     ];
     if (access) lines.push(`access_word = ${access}`);
-    lines.push('', '[slots]', '# YYYY-MM-DD HH:MM  or  YYYY-MM-DD', ...slots);
+    lines.push('', '[slots]', '# YYYY-MM-DD HH:MM[; note; Yes/No]   (note + options optional)', ...slots);
     return lines.join('\n') + '\n';
   }
 

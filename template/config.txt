@@ -16,9 +16,15 @@ access_word = changeme
 
 [slots]
 # One time slot per line.
-# Formats:  YYYY-MM-DD HH:MM   (date + time)
-#           YYYY-MM-DD          (all day)
+# Formats:
+#   YYYY-MM-DD HH:MM                              (date + time)
+#   YYYY-MM-DD                                    (all day)
+#   YYYY-MM-DD HH:MM; note                        (with a note)
+#   YYYY-MM-DD HH:MM; note; Yes/No                (restrict voting options)
+#
+# Options are any subset of Yes / Maybe / No, separated by "/".
+# Omit the options field to show all three.
 2026-04-15 09:00
-2026-04-15 14:00
-2026-04-16 09:00
+2026-04-15 14:00; Lunch meeting
+2026-04-16 09:00; Bus from DTU; Yes/No
 2026-04-17
