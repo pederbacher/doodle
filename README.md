@@ -121,6 +121,13 @@ To generate the link, open `setup.html` locally → **Section 3**, enter the fol
 
 ---
 
+From the command line — build it directly from token.txt. Run this
+yourself so your token stays out of our chat; type it with the !
+prefix in the prompt:
+```bash
+! echo "https://pederbacher.github.io/doodle/2026_dynsys_goes_viking_signup/#t=$(tr -d '[:space:]' < token.txt)"
+```
+
 ## Access word
 
 When `access_word` is set in a poll's `config.txt`, participants must enter it before voting or viewing results. It is stored for the browser session. Leave blank or omit to make the poll public.

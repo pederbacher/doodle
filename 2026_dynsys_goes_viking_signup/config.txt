@@ -50,4 +50,4 @@ Any questions pbac@dtu.dk
 #           YYYY-MM-DD          (all day)
 2026-06-16 13:30; Go with bus from DTU; Yes/No
 2026-06-16 14:30; Sailing; Yes/No
-2026-06-16 18:00; Sailing; Yes/No
+2026-06-16 18:00; Dinner; Yes/No
