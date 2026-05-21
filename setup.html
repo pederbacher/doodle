@@ -258,13 +258,20 @@
     const access = document.getElementById('poll-access').value.trim();
     const lines = [
       '# Doodle Poll Configuration',
+      '# Each [name] header introduces a field; lines below it are its value.',
       '',
-      '[poll]',
-      `title = ${title}`,
-      `description = ${desc}`,
-      `organizer = ${org}`,
+      '[title]',
+      title,
+      '',
+      '[description]',
+      desc,
+      '',
+      '[organizer]',
+      org,
+      '',
+      '[access_word]',
     ];
-    if (access) lines.push(`access_word = ${access}`);
+    if (access) lines.push(access);
     lines.push('', '[slots]', '# YYYY-MM-DD HH:MM[; note; Yes/No]   (note + options optional)', ...slots);
     return lines.join('\n') + '\n';
   }
@@ -280,10 +287,15 @@
       '# The GitHub token is stored in your browser localStorage, not here.',
       '# ============================================================',
       '',
-      '[github]',
-      `owner = ${owner || 'YOUR_GITHUB_USERNAME'}`,
-      `repo = ${repo || 'YOUR_REPO_NAME'}`,
-      `branch = ${branch}`,
+      '',
+      '[owner]',
+      owner || 'YOUR_GITHUB_USERNAME',
+      '',
+      '[repo]',
+      repo || 'YOUR_REPO_NAME',
+      '',
+      '[branch]',
+      branch,
       '',
     ].join('\n');
   }

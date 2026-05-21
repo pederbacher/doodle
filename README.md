@@ -74,11 +74,17 @@ cp -r template/ my-poll/
 Edit `my-poll/config.txt`:
 
 ```ini
-[poll]
-title       = When can we meet?
-description = Pick your preferred dates.
-organizer   = Peder
-access_word = sunshine42        # leave blank to disable
+[title]
+When can we meet?
+
+[description]
+Pick your preferred dates.
+
+[organizer]
+Peder
+
+[access_word]
+sunshine42
 
 [slots]
 2026-05-10 18:00
@@ -149,12 +155,28 @@ your-poll-name/             ← Copied from template/
 
 ## config.txt reference
 
+Each field starts with a `[name]` header. Every line below it — up to the
+next `[name]` — is that field's value, so descriptions can span multiple
+lines and contain blank lines. Lines starting with `#` are comments.
+
 ```ini
-[poll]
-title       = When can we meet?          # required
-description = Context for participants.  # optional
-organizer   = Your Name                  # optional
-access_word = secret123                  # optional
+[title]
+When can we meet?
+
+[description]
+Context for participants.
+
+It can span several lines,
+including blank ones.
+
+[organizer]
+Your Name
+
+[access_word]
+secret123
+
+[image]
+banner.png
 
 [slots]
 # YYYY-MM-DD HH:MM[; note][; options]   (note + options optional)
@@ -163,6 +185,9 @@ access_word = secret123                  # optional
 2026-04-16 09:00; Bus from DTU; Yes/No
 2026-04-17
 ```
+
+Fields: `title` (required), `description`, `organizer`, `access_word`,
+`image` (all optional — leave the value empty to omit), and `slots`.
 
 Each slot line is `date [time][; note][; options]`:
 

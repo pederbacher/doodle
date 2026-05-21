@@ -43,7 +43,7 @@
     }
     h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; }
     h2 { font-size: 1.15rem; font-weight: 700; margin-bottom: 16px; }
-    .description { color: var(--muted); margin-bottom: 6px; font-size: 0.95rem; }
+    .description { color: var(--muted); margin-bottom: 6px; font-size: 0.95rem; white-space: pre-wrap; }
     .organizer { font-size: 0.85rem; color: var(--muted); margin-bottom: 0; }
     .organizer strong { color: var(--text); }
 
@@ -316,21 +316,33 @@
     return { slot, note, options };
   }
 
+  // Parse the [key]-header config format: each `[name]` line starts a field,
+  // and every line below it (until the next `[name]`) is that field's value.
+  // Blank lines inside a value are kept; leading/trailing ones are trimmed.
   function parseConfig(text) {
-    const cfg = { poll: {}, github: {}, slots: [] };
-    let section = null;
-    for (const raw of text.split('\n')) {
-      const line = raw.trim();
-      if (!line || line.startsWith('#')) continue;
-      const sec = line.match(/^\[(\w+)\]$/);
-      if (sec) { section = sec[1]; continue; }
-      if (section === 'poll' || section === 'github') {
-        const eq = line.indexOf('=');
-        if (eq > 0) cfg[section][line.slice(0, eq).trim()] = line.slice(eq + 1).trim();
-      } else if (section === 'slots') {
-        if (line) cfg.slots.push(parseSlotLine(line));
+    const cfg = { slots: [] };
+    let key = null, buf = [];
+    const flush = () => {
+      if (key === null) return;
+      const value = buf.join('\n').replace(/^\n+/, '').replace(/\n+$/, '');
+      if (key === 'slots') {
+        cfg.slots = value.split('\n')
+          .map(l => l.trim())
+          .filter(l => l && !l.startsWith('#'))
+          .map(parseSlotLine);
+      } else {
+        cfg[key] = value;
       }
+      buf = [];
+    };
+    for (const raw of text.split('\n')) {
+      const trimmed = raw.trim();
+      const sec = trimmed.match(/^\[([\w-]+)\]$/);
+      if (sec) { flush(); key = sec[1]; continue; }
+      if (key === null || trimmed.startsWith('#')) continue;
+      buf.push(raw);
     }
+    flush();
     return cfg;
   }
 
@@ -465,7 +477,7 @@
       if (!localRes.ok) throw new Error('config.txt not found in this doodle folder.');
       const localCfg = parseConfig(await localRes.text());
 
-      config = { poll: localCfg.poll, slots: localCfg.slots, github: globalCfg.github };
+      config = { poll: localCfg, slots: localCfg.slots, github: globalCfg };
 
       if (!config.slots.length) throw new Error('No time slots found in config.txt.');
 

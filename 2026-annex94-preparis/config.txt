@@ -1,9 +1,13 @@
 # Doodle Poll Configuration
+# Each [name] header introduces a field; lines below it are its value.
 
-[poll]
-title = 2026 Annex94 PreParis
-description = 
-organizer = Peder
+[title]
+2026 Annex94 PreParis
+
+[description]
+
+[organizer]
+Peder
 
 [slots]
 # YYYY-MM-DD HH:MM  or  YYYY-MM-DD
@@ -36,4 +40,3 @@ organizer = Peder
 2026-04-29 13:00
 2026-04-29 14:00
 2026-04-29 15:00
-

@@ -1,9 +1,15 @@
 # ============================================================
 # Global Doodle Configuration
 # The GitHub token is stored in your browser localStorage, not here.
+# Each field starts with a [name] header; the line below it is
+# that field's value.
 # ============================================================
 
-[github]
-owner = pederbacher
-repo = doodle
-branch = main
+[owner]
+pederbacher
+
+[repo]
+doodle
+
+[branch]
+main
