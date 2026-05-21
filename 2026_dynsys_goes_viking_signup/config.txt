@@ -7,7 +7,7 @@
 # ============================================================
 
 [title]
-Dynsys vikingboat sailing and dinner
+Dynsys vikingboat sailing and dinner 2026, June 16th
 
 [organizer]
 Dynsys
