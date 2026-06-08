@@ -159,7 +159,10 @@
     <div class="card">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <h2 style="margin:0">All Responses</h2>
-        <button class="refresh-btn" onclick="loadAndRender()">↻ Refresh</button>
+        <div style="display:flex;gap:14px;align-items:center">
+          <button class="refresh-btn" onclick="downloadCsv()">⤓ Download CSV</button>
+          <button class="refresh-btn" onclick="loadAndRender()">↻ Refresh</button>
+        </div>
       </div>
       <div id="state-empty" class="hidden" style="text-align:center;padding:24px">
         <p style="color:var(--muted)">No responses yet.</p>
@@ -182,6 +185,7 @@
 </div>
 <script>
   let config = null;
+  let lastResponses = [];
 
   function show(id) {
     ['state-loading','state-error','state-access','state-results'].forEach(s => {
@@ -422,10 +426,46 @@
       `${responses.length} response${responses.length !== 1 ? 's' : ''} · Last updated: ${new Date().toLocaleTimeString()}`;
   }
 
+  // ── CSV export ───────────────────────────────────────────────────────────
+  // One row per response: time of vote, name, then one column per slot.
+  function csvField(v) {
+    const s = String(v == null ? '' : v);
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function downloadCsv() {
+    if (!lastResponses.length) {
+      alert('No responses to download yet.');
+      return;
+    }
+    const slots = config.slots;
+    const header = ['Submitted', 'Name', ...slots.map(s =>
+      formatSlot(s.slot) + (s.note ? ' — ' + s.note : ''))];
+    const rows = lastResponses.map(r => {
+      const cells = slots.map(s => {
+        const fallback = s.options[s.options.length - 1];
+        return r.votes[s.slot] || fallback;
+      });
+      return [r.submitted, r.name, ...cells].map(csvField).join(',');
+    });
+    const csv = [header.map(csvField).join(','), ...rows].join('\r\n');
+
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = (getDoodleFolder() || 'doodle') + '-results.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   async function loadAndRender() {
     show('state-loading');
     try {
       const responses = await fetchResponses();
+      lastResponses = responses;
       const scores    = computeScores(responses, config.slots);
       renderBest(scores);
       renderGrid(responses, config.slots, scores);
