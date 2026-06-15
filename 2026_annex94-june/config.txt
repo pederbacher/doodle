@@ -18,7 +18,7 @@ Peder
 # Access word participants must enter to vote / view results.
 # Leave the value empty to disable the gate.
 [access_word]
-changeme
+htc
 
 # Optional image file in this folder (jpg, png, gif, webp, …).
 # Leave the value empty to show no image.

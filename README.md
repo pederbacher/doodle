@@ -2,7 +2,39 @@
 
 A lightweight, serverless scheduling poll hosted on GitHub Pages. No backend — responses are saved as `.txt` files via the GitHub API.
 
+## Sharing a poll
+
+The share link embeds the token as a base64 hash fragment so participants can submit without any setup:
+
+```
+https://YOU.github.io/doodle/FOLDER/#t=BASE64_TOKEN
+```
+
+From the command line — build it directly from token.txt. Run this
+yourself so your token stays out of our chat; type it with the !
+prefix in the prompt:
+```bash
+folder='2026_annex94-june'
+! echo "https://pederbacher.github.io/doodle/${folder}/#t=$(tr -d '[:space:]' < token.txt)"
+```
+
+
+Browsers never send URL fragments to servers, so the token is not logged anywhere. When a participant opens the link their browser stores it in `localStorage` for that session.
+
+**Always share this link — not the plain URL.** Opening the plain URL in a fresh browser will show "No GitHub token found".
+
 ---
+
+Alternatively
+To generate the link, open `setup.html` locally → **Section 3**, enter the folder name, click **Generate Share Link**, then copy it.
+
+| Page | URL |
+|------|-----|
+| Vote | Share link from Section 3 (includes `#t=…`) |
+| Results | `https://YOU.github.io/doodle/FOLDER/results.html` |
+
+---
+
 
 ## How it works
 
@@ -100,33 +132,6 @@ git push
 
 ---
 
-## Sharing a poll
-
-The share link embeds the token as a base64 hash fragment so participants can submit without any setup:
-
-```
-https://YOU.github.io/doodle/FOLDER/#t=BASE64_TOKEN
-```
-
-Browsers never send URL fragments to servers, so the token is not logged anywhere. When a participant opens the link their browser stores it in `localStorage` for that session.
-
-**Always share this link — not the plain URL.** Opening the plain URL in a fresh browser will show "No GitHub token found".
-
-To generate the link, open `setup.html` locally → **Section 3**, enter the folder name, click **Generate Share Link**, then copy it.
-
-| Page | URL |
-|------|-----|
-| Vote | Share link from Section 3 (includes `#t=…`) |
-| Results | `https://YOU.github.io/doodle/FOLDER/results.html` |
-
----
-
-From the command line — build it directly from token.txt. Run this
-yourself so your token stays out of our chat; type it with the !
-prefix in the prompt:
-```bash
-! echo "https://pederbacher.github.io/doodle/2026_dynsys_goes_viking_signup/#t=$(tr -d '[:space:]' < token.txt)"
-```
 
 ## Access word
 
