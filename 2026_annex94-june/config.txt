@@ -1,0 +1,48 @@
+# ============================================================
+# Doodle Poll Configuration
+# Edit this file, then copy the whole folder for each new poll.
+# Each field starts with a [name] header; every line below it
+# (until the next [name]) is that field's value. Blank lines
+# inside a value are kept. Lines starting with # are comments.
+# ============================================================
+
+[title]
+Annex 94 June
+
+[description]
+Please indicate your availability for the proposed time slots below.
+
+[organizer]
+Peder
+
+# Access word participants must enter to vote / view results.
+# Leave the value empty to disable the gate.
+[access_word]
+changeme
+
+# Optional image file in this folder (jpg, png, gif, webp, …).
+# Leave the value empty to show no image.
+[image]
+
+[slots]
+# One time slot per line.
+# Formats:
+#   YYYY-MM-DD HH:MM                              (date + time)
+#   YYYY-MM-DD                                    (all day)
+#   YYYY-MM-DD HH:MM; note                        (with a note)
+#   YYYY-MM-DD HH:MM; note; Yes/No                (restrict voting options)
+#
+# Options are any subset of Yes / Maybe / No, separated by "/".
+# Omit the options field to show all three.
+2026-06-22 09-10; 
+2026-06-22 10-11;
+2026-06-22 13-14;
+2026-06-23 15-16;
+2026-06-24 15-16;
+2026-06-25 09-10; 
+2026-06-25 10-11;
+2026-06-26 09-10; 
+2026-06-26 11-12;
+2026-06-26 13-14;
+2026-06-26 14-15;
+
