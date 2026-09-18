@@ -4,20 +4,20 @@ A lightweight, serverless scheduling poll hosted on GitHub Pages. No backend —
 
 ## Sharing a poll
 
-The share link embeds the token as a base64 hash fragment so participants can submit without any setup:
+Participants need a link that carries your token in the URL fragment:
 
 ```
-https://YOU.github.io/doodle/FOLDER/#t=BASE64_TOKEN
+https://YOU.github.io/doodle/FOLDER/#t=TOKEN
 ```
 
-From the command line — build it directly from token.txt. Run this
-yourself so your token stays out of our chat; type it with the !
-prefix in the prompt:
+Generate it with one command (reads `token.txt` and `config.txt`, prints the link and copies it to your clipboard):
+
 ```bash
-folder='2026_annex94-june'
-! echo "https://pederbacher.github.io/doodle/${folder}/#t=$(tr -d '[:space:]' < token.txt)"
+./share-link.sh FOLDER      # e.g. ./share-link.sh annex94-dk-2026-fall
+./share-link.sh             # no argument: pick the poll from a list
 ```
 
+If you're in a Claude Code session, run it as `! ./share-link.sh FOLDER` so the token stays out of the chat.
 
 Browsers never send URL fragments to servers, so the token is not logged anywhere. When a participant opens the link their browser stores it in `localStorage` for that session.
 
@@ -25,12 +25,11 @@ Browsers never send URL fragments to servers, so the token is not logged anywher
 
 ---
 
-Alternatively
-To generate the link, open `setup.html` locally → **Section 3**, enter the folder name, click **Generate Share Link**, then copy it.
+Alternatively, open `setup.html` locally → **Section 3**, enter the folder name, click **Generate Share Link**, then copy it.
 
 | Page | URL |
 |------|-----|
-| Vote | Share link from Section 3 (includes `#t=…`) |
+| Vote | Output of `./share-link.sh FOLDER` (includes `#t=…`) |
 | Results | `https://YOU.github.io/doodle/FOLDER/results.html` |
 
 ---
@@ -148,6 +147,7 @@ When `access_word` is set in a poll's `config.txt`, participants must enter it b
 token.txt                   ← Your GitHub token (gitignored, create manually)
 config.txt                  ← Global: owner, repo, branch
 setup.html                  ← UI for global config, new polls, and share links
+share-link.sh               ← Prints/copies a poll's share link
 
 template/
   config.txt                ← Edit this for each new poll
