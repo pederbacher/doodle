@@ -1,0 +1,29 @@
+# Doodle Poll Configuration
+# Each [name] header introduces a field; lines below it are its value.
+
+[title]
+Status meeting Annex 94 DK fall 2026
+
+[image]
+banner.png
+
+[description]
+
+[organizer]
+Peder
+
+[access_word]
+
+[slots]
+# YYYY-MM-DD HH:MM[; note; Yes/No]   (note + options optional)
+2026-09-28 10:00; 2 hours; Yes/No
+2026-09-28 13:00; 2 hours; Yes/No
+2026-09-29 10:00; 2 hours; Yes/No
+2026-09-29 13:00; 2 hours; Yes/No
+2026-10-02 10:00; 2 hours; Yes/No
+2026-10-02 13:00; 2 hours; Yes/No
+2026-10-09 10:00; 2 hours; Yes/No
+2026-10-09 13:00; 2 hours; Yes/No
+2026-10-12 10:00; 2 hours; Yes/No
+2026-10-12 13:00; 2 hours; Yes/No
+2026-10-13 13:00; 2 hours; Yes/No
