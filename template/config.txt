@@ -20,8 +20,10 @@ Your Name
 [access_word]
 changeme
 
-# Optional image file in this folder (jpg, png, gif, webp, …).
-# Leave the value empty to show no image.
+# Optional image file(s) in this folder (jpg, png, gif, webp, …),
+# one per line. [image] can be used several times anywhere in this
+# file: before [slots] the image is shown above the options, after
+# [slots] it is shown below them. Leave empty to show no image.
 [image]
 
 [slots]

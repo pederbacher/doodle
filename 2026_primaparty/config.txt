@@ -34,4 +34,4 @@ Før.png
 2026-12-28;
 
 [image]
-Før.png
+Efter.png

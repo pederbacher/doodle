@@ -201,6 +201,19 @@ banner.png
 Fields: `title` (required), `description`, `organizer`, `access_word`,
 `image` (all optional — leave the value empty to omit), and `slots`.
 
+`[image]` takes one image file (or URL) per line and may be repeated
+anywhere in the file. Images in an `[image]` section placed **before**
+`[slots]` are shown above the options; ones placed **after** `[slots]`
+are shown below them, e.g.
+
+```ini
+[slots]
+2026-12-26
+
+[image]
+map.png
+```
+
 Each slot line is `date [time][; note][; options]`:
 
 - **note** (optional) — short label shown next to the slot (e.g. "Sailing", "Bus from DTU").

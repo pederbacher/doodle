@@ -147,9 +147,7 @@
       <p class="organizer">Organized by <strong id="poll-organizer"></strong></p>
     </div>
 
-    <div id="poll-image-card" class="card hidden" style="padding:0;overflow:hidden">
-      <img id="poll-image" src="" alt="" style="width:100%;display:block" />
-    </div>
+    <div id="images-top"></div>
 
     <div class="card" id="best-card">
       <h2>Best Options</h2>
@@ -176,6 +174,8 @@
       </div>
       <p class="meta" id="response-meta"></p>
     </div>
+
+    <div id="images-bottom"></div>
 
     <div class="nav-links">
       <a href="index.html">← Back to Vote</a>
@@ -265,12 +265,18 @@
   // and every line below it (until the next `[name]`) is that field's value.
   // Blank lines inside a value are kept; leading/trailing ones are trimmed.
   function parseConfig(text) {
-    const cfg = { slots: [] };
-    let key = null, buf = [];
+    const cfg = { slots: [], images: [] };
+    let key = null, buf = [], seenSlots = false;
     const flush = () => {
       if (key === null) return;
       const value = buf.join('\n').replace(/^\n+/, '').replace(/\n+$/, '');
-      if (key === 'slots') {
+      if (key === 'image') {
+        // [image] may appear any number of times; one file per line.
+        // Placed above the options if before [slots], below them if after.
+        value.split('\n').map(l => l.trim()).filter(Boolean)
+          .forEach(src => cfg.images.push({ src, pos: seenSlots ? 'bottom' : 'top' }));
+      } else if (key === 'slots') {
+        seenSlots = true;
         cfg.slots = value.split('\n')
           .map(l => l.trim())
           .filter(l => l && !l.startsWith('#'))
@@ -476,6 +482,25 @@
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
+  function renderImages(images) {
+    ['top', 'bottom'].forEach(pos => {
+      const box = document.getElementById('images-' + pos);
+      box.innerHTML = '';
+      images.filter(i => i.pos === pos).forEach(({ src }) => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.cssText = 'padding:0;overflow:hidden';
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = '';
+        img.style.cssText = 'width:100%;display:block';
+        img.onerror = () => card.remove();
+        card.appendChild(img);
+        box.appendChild(card);
+      });
+    });
+  }
+
   async function init() {
     try {
       const globalRes = await fetch('../config.txt?_=' + Date.now());
@@ -493,13 +518,8 @@
       document.getElementById('poll-organizer').textContent = config.poll.organizer  || 'Unknown';
       document.title = (config.poll.title || 'Poll') + ' – Results';
 
-      if (config.poll.image) {
-        const imgEl = document.getElementById('poll-image');
-        const card  = document.getElementById('poll-image-card');
-        imgEl.src = config.poll.image;
-        imgEl.onerror = () => card.classList.add('hidden');
-        card.classList.remove('hidden');
-      }
+      // Show images ([image] sections) above / below the options
+      renderImages(config.poll.images);
 
       if (config.poll.access_word && !isAccessGranted(config.poll.access_word)) {
         document.getElementById('access-poll-title').textContent = config.poll.title || 'Doodle Poll';
