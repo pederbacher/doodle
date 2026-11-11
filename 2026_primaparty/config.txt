@@ -7,10 +7,11 @@
 # ============================================================
 
 [title]
-Prima winter warm-up
+Prima jule-vinter warm-up
 
 [description]
-Please indicate your availability for the proposed time slots below.
+Hvor kan I? Har bare sat en dato, så hvis man kan om aftenen fra 17-tiden
+evt. kommer man lidt for sent hvis der er andet tidligere på dagen...
 
 [organizer]
 Prima Peder
@@ -30,8 +31,18 @@ Før.png
 #
 # Options are any subset of Yes / Maybe / No, separated by "/".
 # Omit the options field to show all three.
-2026-12-26; 
 2026-12-28;
+2026-12-29;
+2026-12-30;
+2027-01-08;
+2027-01-09;
+2027-01-15;
+2027-01-16;
+2027-01-22;
+2027-01-23;
+2027-01-29;
+2027-01-30;
+
 
 [image]
 Efter.png
