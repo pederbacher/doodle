@@ -19,6 +19,7 @@ Prima Peder
 # Leave the value empty to show no image.
 [image]
 Før.png
+Efter.png
 
 [slots]
 # One time slot per line.
